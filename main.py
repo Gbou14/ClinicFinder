@@ -16,24 +16,13 @@ from src.utils.logger import setup_logger
 logger = setup_logger()
 
 
-def main():
-
-    logger.info(
-        "Starting ClinicFinder..."
-    )
+def run_discovery(zip_code: str, target_count: int = 20, enrich_emails: bool = False):
+    """Run one clinic batch without requiring command-line input."""
+    logger.info("Starting ClinicFinder...")
     reset_usage()
 
-
-    zip_code = input(
-        "Enter ZIP code: "
-    )
-    target_count = int(input("How many clinics (10-50, default 20): ") or "20")
     if not 10 <= target_count <= 50:
         raise ValueError("Clinic count must be between 10 and 50.")
-    enrich_emails = input(
-        "Find and validate emails now? This is slower. (y/N): "
-    ).strip().lower() in {"y", "yes"}
-
 
     location = get_coordinates(
         zip_code
@@ -72,34 +61,6 @@ def main():
             enrich_clinic(clinic)
 
 
-    print(
-        f"\nFound {len(clinics)} businesses within a 30-mile radius\n"
-    )
-
-
-    for clinic in clinics:
-
-        print(
-            clinic.name
-        )
-
-        print(
-            clinic.address
-        )
-
-        print(
-            clinic.phone
-        )
-
-        print(
-            clinic.website
-        )
-
-        print(
-            "Email not checked"
-        )
-
-        print("---")
     export_path = export_clinics_to_excel(
         clinics,
         filename=f"{zip_code}_clinics.xlsx",
@@ -109,6 +70,25 @@ def main():
         },
     )
     logger.info(f"Saved file: {export_path}")
+    return clinics, export_path
+
+
+def main():
+    zip_code = input("Enter ZIP code: ")
+    target_count = int(input("How many clinics (10-50, default 20): ") or "20")
+    enrich_emails = input(
+        "Find and validate emails now? This is slower. (y/N): "
+    ).strip().lower() in {"y", "yes"}
+
+    clinics, _ = run_discovery(zip_code, target_count, enrich_emails)
+    print(f"\nFound {len(clinics)} businesses within a 30-mile radius\n")
+    for clinic in clinics:
+        print(clinic.name)
+        print(clinic.address)
+        print(clinic.phone)
+        print(clinic.website)
+        print(", ".join(clinic.emails) or clinic.email_status)
+        print("---")
 
 
 if __name__ == "__main__":

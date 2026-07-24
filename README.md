@@ -14,6 +14,16 @@ fast discovery, so it can become a later enrichment pass. At the prompt, enter
 `y` for **Find and validate emails now?** to run that enrichment pass for the
 current batch; press Enter for the normal fast-discovery mode.
 
+When email enrichment is enabled, the workbook keeps the results separated:
+`MX-Verified Contacts` contains public addresses whose domains have MX records;
+`Unverified Candidates` contains public addresses found on the clinic website
+that did not pass that check. General inboxes such as `info@` and `contact@`
+are preferred. Other public addresses are retained separately for review, while
+career, finance, executive, privacy, and similar addresses are suppressed.
+
+For the desktop interface, run `python gui.py`. It has the same ZIP, clinic
+count, and email-enrichment controls without requiring terminal input.
+
 The exporter includes `CRM Domain Check`. Google Places can find individual
 small-practice listings, but it cannot guarantee that a website belongs only to
 that location. Confirm the domain before adding it to the CRM, especially for
